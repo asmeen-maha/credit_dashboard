@@ -324,71 +324,78 @@ class _TopIssuesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = AppPalette.of(context);
-    return Column(
-      children: _issues.asMap().entries.map((entry) {
-        final i = entry.key;
-        final issue = entry.value;
-        return Padding(
-          padding: EdgeInsets.only(bottom: i < 4 ? 8 : 0),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: p.surfaceMuted,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: p.border),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: Color(issue['color'] as int).withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Center(
-                    child: Text('${i + 1}',
-                        style: GoogleFonts.inter(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: Color(issue['color'] as int))),
-                  ),
+    // Match the 200px chart height of the sibling cards.
+    return SizedBox(
+      height: 200,
+      child: Column(
+        children: _issues.asMap().entries.map((entry) {
+          final i = entry.key;
+          final issue = entry.value;
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: i < _issues.length - 1 ? 8 : 0),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: p.surfaceMuted,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: p.border),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(issue['title'] as String,
+                child: Row(
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Color(issue['color'] as int).withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Center(
+                        child: Text('${i + 1}',
+                            style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Color(issue['color'] as int))),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(issue['title'] as String,
+                              style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: p.text)),
+                          Text(issue['desc'] as String,
+                              style: GoogleFonts.inter(
+                                  fontSize: 10, color: p.textSubtle),
+                              overflow: TextOverflow.ellipsis),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Color(issue['color'] as int).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text('${issue['count']}',
                           style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: p.text)),
-                      Text(issue['desc'] as String,
-                          style: GoogleFonts.inter(
-                              fontSize: 10, color: p.textSubtle),
-                          overflow: TextOverflow.ellipsis),
-                    ],
-                  ),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Color(issue['color'] as int))),
+                    ),
+                  ],
                 ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Color(issue['color'] as int).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text('${issue['count']}',
-                      style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: Color(issue['color'] as int))),
-                ),
-              ],
+              ),
             ),
-          ),
-        );
-      }).toList(),
+          );
+        }).toList(),
+      ),
     );
   }
 }
