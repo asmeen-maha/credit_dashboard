@@ -1,115 +1,112 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
+import '../theme/motion.dart';
+import '../theme/neu.dart';
+import '../theme/theme_controller.dart';
 
+/// Raised header slab that stays at the top while content scrolls under
+/// it. [onMenu] shows a menu button (small screens).
 class TopHeaderWidget extends StatelessWidget {
-  final String title;
+  static const double height = 76;
 
-  const TopHeaderWidget({super.key, required this.title});
+  final String title;
+  final VoidCallback? onMenu;
+  final bool compact;
+
+  const TopHeaderWidget({
+    super.key,
+    required this.title,
+    this.onMenu,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final p = AppPalette.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
-      decoration: BoxDecoration(
-        gradient: p.headerGradient,
-        border: Border(
-          bottom: BorderSide(color: p.gridLine, width: 1),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0F172A).withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return NeuBox(
+      radius: 24,
+      padding: EdgeInsets.symmetric(horizontal: compact ? 12 : 22),
+      height: height,
+      child: Row(
+        children: [
+          if (onMenu != null) ...[
+            NeuButton(
+              tooltip: 'Open navigation',
+              semanticLabel: 'Open navigation',
+              width: 44,
+              height: 44,
+              radius: 14,
+              onTap: onMenu,
+              child: Center(
+                child: Icon(Icons.menu_rounded, color: p.textStrong, size: 20),
+              ),
+            ),
+            const SizedBox(width: 12),
+          ],
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(
+                  header: true,
+                  child: Text(title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                          fontSize: compact ? 18 : 21,
+                          fontWeight: FontWeight.w800,
+                          color: p.textStrong)),
+                ),
+                if (!compact) ...[
+                  const SizedBox(height: 6),
+                  const Row(
+                    children: [
+                      _HeaderTag('Better Data', AppColors.blue500),
+                      SizedBox(width: 14),
+                      _HeaderTag('Faster Process', AppColors.emerald500),
+                      SizedBox(width: 14),
+                      _HeaderTag('Healthier Cash Flow', AppColors.violet500),
+                    ],
+                  ),
+                ],
+              ],
+            ),
           ),
+          if (!compact) ...[
+            const _ClockChip(),
+            const SizedBox(width: 16),
+          ],
+          const _ThemeToggle(),
+          const SizedBox(width: 16),
+          _profile(p),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title,
-                  style: GoogleFonts.inter(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: p.textStrong)),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  _headerPill('Better Data', AppColors.blue500),
-                  _headerDot(p),
-                  _headerPill('Faster Process', AppColors.emerald500),
-                  _headerDot(p),
-                  _headerPill('Healthier Cash Flow', AppColors.violet500),
-                ],
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              // Date badge
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: p.surface,
-                  border: Border.all(color: p.gridLine),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF0F172A).withOpacity(0.03),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_today_rounded,
-                        size: 14, color: p.textSubtle),
-                    const SizedBox(width: 8),
-                    Text('20 Sep 2026',
-                        style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: p.text)),
-                    Text('  ·  17:00',
-                        style: GoogleFonts.inter(
-                            fontSize: 11, color: p.textSubtle)),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              // Profile
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [AppColors.cyan400, AppColors.blue500],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.cyan400.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const CircleAvatar(
-                  radius: 18,
-                  backgroundColor: AppColors.navy800,
-                  child:
-                      Icon(Icons.person_rounded, color: Colors.white, size: 20),
-                ),
-              ),
+    );
+  }
+
+  Widget _profile(AppPalette p) {
+    return Semantics(
+      label: 'Signed in as AR Manager, Credit & Collection',
+      child: ExcludeSemantics(
+        child: Row(
+          children: [
+            NeuBox(
+              radius: 22,
+              distance: 5,
+              width: 44,
+              height: 44,
+              child: Icon(Icons.person_rounded, color: p.accent, size: 22),
+            ),
+            if (!compact) ...[
               const SizedBox(width: 12),
               Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('AR Manager',
@@ -123,34 +120,140 @@ class TopHeaderWidget extends StatelessWidget {
                 ],
               ),
             ],
-          ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Header slogan: colored dot and text, no surface of its own.
+class _HeaderTag extends StatelessWidget {
+  final String text;
+  final Color color;
+
+  const _HeaderTag(this.text, this.color);
+
+  @override
+  Widget build(BuildContext context) {
+    final p = AppPalette.of(context);
+    return Flexible(
+      child: Text('● $text',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.inter(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              color: p.onAccent(color))),
+    );
+  }
+}
+
+/// Live date and time in a pressed-in well, refreshed every 20 seconds.
+class _ClockChip extends StatefulWidget {
+  const _ClockChip();
+
+  @override
+  State<_ClockChip> createState() => _ClockChipState();
+}
+
+class _ClockChipState extends State<_ClockChip> {
+  static const _months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  static const _weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  DateTime _now = DateTime.now();
+  late final Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(
+      const Duration(seconds: 20),
+      (_) => setState(() => _now = DateTime.now()),
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = AppPalette.of(context);
+    final date =
+        '${_weekdays[_now.weekday - 1]}, ${_now.day} ${_months[_now.month - 1]} ${_now.year}';
+    final time =
+        '${_now.hour.toString().padLeft(2, '0')}:${_now.minute.toString().padLeft(2, '0')}';
+    return NeuBox(
+      inset: true,
+      radius: 14,
+      distance: 4,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.calendar_today_rounded, size: 14, color: p.textMuted),
+          const SizedBox(width: 8),
+          Text(date,
+              style: GoogleFonts.inter(
+                  fontSize: 12, fontWeight: FontWeight.w600, color: p.text)),
+          Text('  ·  $time',
+              style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: p.textMuted,
+                  fontFeatures: const [FontFeature.tabularFigures()])),
         ],
       ),
     );
   }
+}
 
-  static Widget _headerPill(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(text,
-          style: GoogleFonts.inter(
-              fontSize: 11, fontWeight: FontWeight.w500, color: color)),
-    );
-  }
+/// Round light/dark switch: pressed in while dark mode is on.
+/// Settings keeps the "System" option.
+class _ThemeToggle extends StatelessWidget {
+  const _ThemeToggle();
 
-  static Widget _headerDot(AppPalette p) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: Container(
-        width: 4,
-        height: 4,
-        decoration: BoxDecoration(
-          color: p.textFaint,
-          borderRadius: BorderRadius.circular(2),
+  @override
+  Widget build(BuildContext context) {
+    final p = AppPalette.of(context);
+    return NeuButton(
+      tooltip: p.isDark ? 'Switch to light mode' : 'Switch to dark mode',
+      semanticLabel: 'Dark mode',
+      selected: p.isDark,
+      width: 48,
+      height: 48,
+      radius: 24,
+      onTap: () => ThemeController.instance
+          .setMode(p.isDark ? ThemeMode.light : ThemeMode.dark),
+      // Sun and moon swap with a quarter turn.
+      child: Center(
+        child: AnimatedSwitcher(
+          duration: Motion.of(context, Motion.theme),
+          transitionBuilder: (child, animation) => RotationTransition(
+            turns: Tween(begin: -0.25, end: 0.0).animate(animation),
+            child: FadeTransition(opacity: animation, child: child),
+          ),
+          child: Icon(
+            p.isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+            key: ValueKey(p.isDark),
+            size: 20,
+            color: p.isDark ? p.accent : p.textMuted,
+          ),
         ),
       ),
     );

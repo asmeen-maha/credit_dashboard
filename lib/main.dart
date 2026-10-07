@@ -5,5 +5,6 @@ import 'theme/theme_controller.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeController.instance.load();
+  await ContrastController.instance.load();
   runApp(const FantaSeaDashboardApp());
 }

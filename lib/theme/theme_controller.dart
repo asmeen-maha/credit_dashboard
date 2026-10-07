@@ -34,3 +34,34 @@ class ThemeController extends ValueNotifier<ThemeMode> {
     }
   }
 }
+
+/// "Increase contrast" accessibility preference: outlines around surfaces
+/// and deeper shadows, for people who cannot see neumorphism's soft edges.
+class ContrastController extends ValueNotifier<bool> {
+  ContrastController._() : super(false);
+
+  static final ContrastController instance = ContrastController._();
+
+  static const String _prefsKey = 'increase_contrast';
+
+  /// Loads the saved preference. Call once before [runApp].
+  Future<void> load() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      value = prefs.getBool(_prefsKey) ?? false;
+    } catch (_) {
+      value = false;
+    }
+  }
+
+  Future<void> setIncreased(bool increased) async {
+    if (value == increased) return;
+    value = increased;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_prefsKey, increased);
+    } catch (_) {
+      // Preference still applies for this session even if saving fails.
+    }
+  }
+}
